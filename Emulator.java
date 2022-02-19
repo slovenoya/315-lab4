@@ -17,12 +17,10 @@ public class Emulator {
     private static final int MEM_SIZE = 8192;
 
     private int PC; 
-    private Map<Integer, Integer> registerIdToValue = new HashMap<>();      //first int : id of register, second int: value of register
-    private Map<String, Integer> registerNameToId = new HashMap<>();    //first int : name of register, second int: id of register
+    private Map<String, Integer> registerTable = new HashMap<>();    //first int : name of register, second int: id of register
     private int [] memory;
 
     public Emulator() {
-        setUpRegisterNameId();
         initializeEmulator();
     }
 
@@ -35,16 +33,9 @@ public class Emulator {
         initializeMemory();
     }
 
-    //set up register name id (String name, int id)
-    private void setUpRegisterNameId() {
-        for (int i = 0; i < SUPPORTED_REGS_NUM; i++) {
-            registerNameToId.put(SUPPORTED_REG_LIST[i], i);
-        }
-    }
-
     private void initializeRegTable() {
-        for (int i = 0; i < SUPPORTED_REGS_NUM; i++) {
-            this.registerIdToValue.put(i, 0);
+        for (String register : SUPPORTED_REG_LIST) {
+            this.registerTable.put(register, 0);
         }
     }
 
@@ -70,7 +61,7 @@ public class Emulator {
      * @param value update value for the register
      */
     public void writeReg(String regName, int value) {
-        registerIdToValue.replace(registerNameToId.get(regName), value);
+        registerTable.replace(regName, value);
     }
 
     /**
@@ -79,7 +70,7 @@ public class Emulator {
      * @return register value
      */
     public int readReg(String regName) {
-        return registerIdToValue.get(registerNameToId.get(regName));
+        return registerTable.get(regName);
     }
 
     /**
