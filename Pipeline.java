@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Pipeline {
     private final List<String> instructions = new ArrayList<>();
@@ -27,7 +29,23 @@ public class Pipeline {
     }
 
     public List<String> getPipeList() {
-        return this.pipeLine;
+        List<String> pipeList = this.pipeLine.stream().map(s -> getOpName(s)).collect(Collectors.toList());
+        return pipeList;
+    }
+
+    private String getOpName(String instruction) {
+        if (instruction.equals(EMPTY) || instruction.equals(SQUASH) || instruction.equals(STALL)) {
+            return instruction;
+        } else if (instruction.startsWith("jal")) {
+            return "jal";
+        } else if (instruction.startsWith("jr")) {
+            return "jr";
+        } else if (instruction.startsWith("j")) {
+            return "j";
+        } else {
+            String[] splits = instruction.split("$");
+            return splits[0];
+        }
     }
 
     //return if the pipeline is empty
@@ -45,8 +63,6 @@ public class Pipeline {
     }
 
     private void executeOnePipeLine(String instruction) {
-
-
+        executor.executeOneLine(instruction);
     }
-
 }
