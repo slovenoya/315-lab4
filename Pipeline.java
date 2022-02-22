@@ -6,6 +6,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Pipeline {
+    private static final int IFID = 0;
+    private static final int IDEXE = 1;
+    private static final int EXEMEM = 2;
+    private static final int MEMWR = 3;
+
     private final List<String> instructions = new ArrayList<>();
     private List<String> pipeLine = new ArrayList<>();
     private final Map<String, Integer> labels = new HashMap<>();
@@ -63,13 +68,14 @@ public class Pipeline {
     }
 
     private void executeOnePipeLine(List<String> pipeline) {
-        String instruction = pipeline.get(4);
-        String ex = pipeline.get(3);
+        String instruction = pipeline.get(MEMWR);
+        String ex = pipeline.get(EXEMEM);
         executor.executeOneLine(instruction);
         if (getOpName(ex).equals("beq")) {
-            String[] splits = ex.split("$");
-            String rs = "$" + splits[1];
-            String rt = "$" + splits[2];
+            String[] splits = ex.split(",");
+            String[] splitTwo = splits[0].split("$");
+            String rs = "$" + splitTwo[1];
+            String rt = splits[1];
             if (executor.branchEquality(rs, rt)) {
                 pipeline.clear();
                 pipeline.add(SQUASH);
@@ -77,10 +83,28 @@ public class Pipeline {
                 pipeline.add(SQUASH);
                 pipeline.add(ex);
             }
+        } else {
+            String newInstruction = instructions.get(executor.getPC());
+            shift(newInstruction);
         }
+    }
+
+    private void shift(String newInstruction) {
+        pipeLine.remove(EXEMEM);
+        pipeLine.add(IFID, newInstruction);
     }
 
     private double getCPI() {
         return (double) cycle / instructions.size();
+    }
+
+    public void printPipe() {
+        System.out.println("PC" + "\t" + "IF/ID" + "\t" + "ID/EXE" + "\t" + "EXE/MEM" + "\t" + "MEM/WR");
+        System.out.println(executor.getPC() + "\t" + pipeLine.get(IFID) + "\t" + pipeLine.get(IDEXE) + "\t" + pipeLine.get(EXEMEM) + "\t" + pipeLine.get(MEMWR));
+    }
+
+    public static void main(String[] args) {
+        Pipeline pip = new Pipeline(System.in);
+        pip.printPipe();
     }
 }
