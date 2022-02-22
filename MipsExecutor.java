@@ -1,15 +1,17 @@
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MipsExecutor {
     private final Emulator emulator;
-    private final List<String> instructions;
-    private final Map<String, Integer> labels;
+    private final List<String> instructions = new ArrayList<String>();
+    private final Map<String, Integer> labels = new HashMap<>();
 
     public MipsExecutor (List<String> instructions, Map<String, Integer> labels) {
         emulator = new Emulator();
-        this.instructions = instructions;
-        this.labels = labels;
+        this.instructions.addAll(instructions);
+        this.labels.putAll(labels);
     }
 
     public void execute() {
