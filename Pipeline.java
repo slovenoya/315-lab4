@@ -1,9 +1,12 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.io.File;
 
 public class Pipeline {
     private static final int IFID = 0;
@@ -104,7 +107,13 @@ public class Pipeline {
     }
 
     public static void main(String[] args) {
-        Pipeline pip = new Pipeline(System.in);
-        pip.printPipe();
+        File file = new File("tests/input1");
+        try {
+            InputStream stream = new FileInputStream(file);
+            Pipeline pip = new Pipeline(stream);
+            pip.printPipe();   
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
