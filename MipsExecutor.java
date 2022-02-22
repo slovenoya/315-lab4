@@ -176,4 +176,12 @@ public class MipsExecutor {
             position ++;
         }
     }
+
+    public int getPC() {
+        return this.emulator.getPC();
+    }
+
+    public boolean branchEquality(String rs, String rt) {
+        return emulator.readReg(rs) == emulator.readReg(rt);
+    }
 }
