@@ -68,12 +68,12 @@ public class Pipeline {
         cycle++;
         String nextInstruction = instructions.get(executor.getPC());
         executeOnePipeLine(pipeLine);
+        shift(nextInstruction);
     }
 
     private void executeOnePipeLine(List<String> pipeline) {
         String instruction = pipeline.get(MEMWR);
         String ex = pipeline.get(EXEMEM);
-        executor.executeOneLine(instruction);
         if (getOpName(ex).equals("beq")) {
             String[] splits = ex.split(",");
             String[] splitTwo = splits[0].split("$");
@@ -86,10 +86,8 @@ public class Pipeline {
                 pipeline.add(SQUASH);
                 pipeline.add(ex);
             }
-        } else {
-            String newInstruction = instructions.get(executor.getPC());
-            shift(newInstruction);
-        }
+            executor.executeOneLine(instruction);
+        } 
     }
 
     private void shift(String newInstruction) {
