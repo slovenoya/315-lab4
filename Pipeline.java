@@ -70,10 +70,17 @@ public class Pipeline {
     public void run() {
         do {
             proceed();
-        } while (!isEmpty());
-        System.out.println("Program complete");
-        System.out.println("CPI = " + getCPI() + "     Cycles = " + cycle + 	"      Instructions = " + instructions.size());
-    }
+        } while (!isEmpty() && cycle < 10000);
+        if (cycle < 10000) {
+            String cpi = String.format("%.3f", getCPI());
+            System.out.println("Program complete");
+            System.out.println("CPI = " +  cpi + "     Cycles = " + (cycle - 1) + 	"      Instructions = " + instrNum);    
+        }
+        else {
+            System.out.println("Program failed");
+            System.out.println("r for this specific program is not working!");
+        }
+      }
 
     public void proceed() {
         cycle++;
@@ -85,20 +92,48 @@ public class Pipeline {
             instrNum ++;
         }
         if (getOpName(pipeline.get(EXEMEM)).equals("beq")) {
+            executor.executeOneLine(pipeline.get(MEMWR));
+            String instruction = pipeline.get(EXEMEM);
             String[] splits = pipeline.get(EXEMEM).split(",");
             String[] splitTwo = splits[0].split("[$]");
-            String rs = "[$]" + splitTwo[1];
+            String rs = "$" + splitTwo[1];
             String rt = splits[1];
             if (executor.branchEquality(rs, rt)) {
                 pipeline.clear();
                 pipeline.add(SQUASH);
                 pipeline.add(SQUASH);
                 pipeline.add(SQUASH);
-                pipeline.add(pipeline.get(EXEMEM));
-                executor.executeOneLine(pipeline.get(MEMWR));
+                pipeline.add(instruction);
+                executor.setPC(executor.getPC() + 1);
+            } else {
                 String nextInstruction;
-                if (executor.getPC() <= instructions.size()) {
+                if (executor.getPC() < instructions.size()) {
                     nextInstruction = instructions.get(executor.getPC());
+                    executor.setPC(executor.getPC() + 1);
+                } else {
+                    nextInstruction = EMPTY;
+                }
+                shift(nextInstruction);
+            }
+        } else if (getOpName(pipeline.get(EXEMEM)).equals("bne")) {
+            executor.executeOneLine(pipeline.get(MEMWR));
+            String instruction = pipeline.get(EXEMEM);
+            String[] splits = pipeline.get(EXEMEM).split(",");
+            String[] splitTwo = splits[0].split("[$]");
+            String rs = "$" + splitTwo[1];
+            String rt = splits[1];
+            if (!executor.branchEquality(rs, rt)) {
+                pipeline.clear();
+                pipeline.add(SQUASH);
+                pipeline.add(SQUASH);
+                pipeline.add(SQUASH);
+                pipeline.add(instruction);
+                executor.setPC(executor.getPC() + 1);
+            } else {
+                String nextInstruction;
+                if (executor.getPC() < instructions.size()) {
+                    nextInstruction = instructions.get(executor.getPC());
+                    executor.setPC(executor.getPC() + 1);
                 } else {
                     nextInstruction = EMPTY;
                 }
@@ -122,23 +157,37 @@ public class Pipeline {
                     pipeline.add(STALL);
                     pipeline.add(b);
                     pipeline.add(c);
+                } else {
+                    executor.executeOneLine(pipeline.get(MEMWR));
+                    String nextInstruction;
+                    if (executor.getPC() < instructions.size()) {
+                        nextInstruction = instructions.get(executor.getPC());
+                        executor.setPC(executor.getPC() + 1);
+                    } else {
+                        nextInstruction = EMPTY;
+                    }
+                    shift(nextInstruction);
                 }
-            }
-        } else if (isJump(pipeline.get(IDEXE))) {
-            int pc = executor.getPC();
-            executor.executeOneLine(pipeline.get(MEMWR));
-            executor.setPC(pc);
+            } 
+        } else if (isJump(pipeline.get(IFID))) {
+            cycle++;
+            instrNum++;
+            executor.executeOneLine(pipeline.get(IFID));
             shift(SQUASH);
-        } 
-        executor.executeOneLine(pipeline.get(MEMWR));
-        String nextInstruction;
-        if (executor.getPC() < instructions.size()) {
-            nextInstruction = instructions.get(executor.getPC());
-            executor.setPC(executor.getPC() + 1);
         } else {
-            nextInstruction = EMPTY;
+            if (!pipeline.get(MEMWR).startsWith("j")) {
+                executor.executeOneLine(pipeline.get(MEMWR));
+            }
+            String nextInstruction;
+            if (executor.getPC() < instructions.size()) {
+                nextInstruction = instructions.get(executor.getPC());
+                executor.setPC(executor.getPC() + 1);
+            } else {
+                nextInstruction = EMPTY;
+            }
+            shift(nextInstruction);
         }
-        shift(nextInstruction);
+        
     }
 
     private boolean needStall(String instruction, String rt) {
@@ -217,7 +266,7 @@ public class Pipeline {
     }
 
     private double getCPI() {
-        return (double) cycle / instrNum;
+        return (double) (cycle - 1) / instrNum;
     }
 
     private String[] getTokens(String instruction) {
@@ -236,6 +285,8 @@ public class Pipeline {
         } else if (instruction.equals(SQUASH)) {
             return false;
         } else if (instruction.equals(STALL)) {
+            return false;
+        } else if (instruction.startsWith("j")) {
             return false;
         } return true;
     }
