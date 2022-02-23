@@ -19,9 +19,8 @@ public class lab4 {
         }
         try {
             InputStream mipsStream = new FileInputStream(mipsFile);
-            MipsParser parser = new MipsParser(mipsStream);
-            MipsExecutor executor = new MipsExecutor(parser.getInstructions(), parser.getLabels());
-            ScriptExecutor scriptExecutor = new ScriptExecutor(scriptStream, executor);
+            Pipeline pipe = new Pipeline(mipsStream);
+            ScriptExecutor scriptExecutor = new ScriptExecutor(scriptStream, pipe);
             scriptExecutor.run();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

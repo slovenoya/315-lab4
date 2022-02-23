@@ -3,11 +3,11 @@ import java.util.Scanner;
 
 public class ScriptExecutor {
     private final InputStream inputStream;
-    private final MipsExecutor executor;
+    private final Pipeline pipe;
     private boolean terminate = false;
-    public ScriptExecutor (InputStream inputStream, MipsExecutor executor) {
+    public ScriptExecutor (InputStream inputStream, Pipeline pipe) {
         this.inputStream = inputStream;
-        this.executor = executor;
+        this.pipe = pipe;
     }
     
     public void run() {
@@ -29,13 +29,9 @@ public class ScriptExecutor {
             String[] tokens = instruction.split(" ");
             if (tokens[0].equals("s") && tokens.length == 2) {
                 int step = Integer.parseInt(tokens[1]);
-                executor.execute(step);
+                pipe.proceed();
                 System.out.println("        " + step + " instruction(s) executed");
-            } else if (tokens[0].equals("m") && tokens.length == 3) {
-                int low = Integer.parseInt(tokens[1]);
-                int high = Integer.parseInt(tokens[2]);
-                executor.printMemory(low, high);
-            } else {
+            }  else {
                 System.out.println("bad instruction!");
             }
         }
@@ -56,16 +52,11 @@ public class ScriptExecutor {
             "m num1 num2 = display data memory from location num1 to num2\n" +
             "c = clear all registers, memory, and the program counter to 0\n" +
             "q = exit the program\n");
-        } else if (instruction.equals("d")) {
-            executor.printEmulator();
         } else if (instruction.equals("s")) {
-            executor.execute(1);
-            System.out.println("        1 instruction(s) executed");
+            pipe.proceed();
+            pipe.printPipe();
         } else if (instruction.equals("r")) {
-            executor.execute();
-        } else if (instruction.equals("c")) {
-            executor.initializeEmulator();
-            System.out.println("        Simulator reset");
+            pipe.run();
         } else {
             System.out.print("bad instruction!");
         }

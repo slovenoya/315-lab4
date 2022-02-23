@@ -6,27 +6,24 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch Pipeline",
-            "request": "launch",
-            "mainClass": "Pipeline",
-            "projectName": "lab4_bc1efcd5"
-        },
-        {
-            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
         },
         {
             "type": "java",
+            "name": "Launch Pipeline",
+            "request": "launch",
+            "mainClass": "Pipeline",
+            "projectName": "315lab4_8dc1166f"
+        },
+        {
+            "type": "java",
             "name": "Launch lab4",
             "request": "launch",
             "mainClass": "lab4",
-            "projectName": "lab4_bc1efcd5",
-            "args": [
-                "tests/input1",
-                "tests/script"
-            ]
+            "projectName": "315lab4_8dc1166f", 
+            "args": ["tests/input1", "tests/script"]
         }
     ]
 }

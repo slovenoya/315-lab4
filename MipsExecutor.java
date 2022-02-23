@@ -49,7 +49,6 @@ public class MipsExecutor {
             int imm = Integer.parseInt(tokens[2]);
             int location = imm + emulator.readReg(rs);
             emulator.writeReg(rt, emulator.getMemory(location, location)[0]);
-            emulator.incrementPC();
         } else if (instruction.startsWith("sw")) {
             String[] tokens = getLoadStoreTokens(instruction);
             String rs = tokens[0];
@@ -58,7 +57,6 @@ public class MipsExecutor {
             int location = imm + emulator.readReg(rs);
             int storeValue = emulator.readReg(rt);
             emulator.storeMemory(location, storeValue);
-            emulator.incrementPC();
         } else if (instruction.startsWith("bne")) {
             String[] tokens = getTokens(instruction);
             int rs = emulator.readReg(tokens[0]);
@@ -66,9 +64,7 @@ public class MipsExecutor {
             int imm = labels.get(tokens[2]);
             if (rs != rt) {
                 emulator.setPC(imm);
-            } else {
-                emulator.incrementPC();
-            }
+            } 
         } else if (instruction.startsWith("beq")) {
             String[] tokens = getTokens(instruction);
             int rs = emulator.readReg(tokens[0]);
@@ -76,9 +72,7 @@ public class MipsExecutor {
             int imm = labels.get(tokens[2]);
             if (rs == rt) {
                 emulator.setPC(imm);
-            } else {
-                emulator.incrementPC();
-            }
+            } 
         } else if (instruction.startsWith("slt")) {
             String[] tokens = getTokens(instruction);
             String rd = tokens[0];
@@ -86,50 +80,47 @@ public class MipsExecutor {
             int rt = emulator.readReg(tokens[2]);
             int value = rs < rt ? 1 : 0;
             emulator.writeReg(rd, value);
-            emulator.incrementPC();
         } else if (instruction.startsWith("sub")) {
             String [] tokens = getTokens(instruction);
             String rd = tokens[0];
             int rs = emulator.readReg(tokens[1]);
             int rt = emulator.readReg(tokens[2]);
             emulator.writeReg(rd, rs - rt);
-            emulator.incrementPC();
         } else if (instruction.startsWith("sll")) {
             String[] tokens = getTokens(instruction);
             String rd = tokens[0];
             int rs = emulator.readReg(tokens[1]);
             int imm = Integer.parseInt(tokens[2]);
             emulator.writeReg(rd, rs << imm);
-            emulator.incrementPC();
         } else if (instruction.startsWith("addi")) {
             String[] tokens = getTokens(instruction);
             String rd = tokens[0];
             int rs = emulator.readReg(tokens[1]);
             int imm = Integer.parseInt(tokens[2]);
             emulator.writeReg(rd, rs + imm);
-            emulator.incrementPC();
         } else if (instruction.startsWith("add")) {
             String[] tokens = getTokens(instruction);
             String rd = tokens[0];
             int rs = emulator.readReg(tokens[1]);
             int rt = emulator.readReg(tokens[2]);
             emulator.writeReg(rd, rs + rt);
-            emulator.incrementPC();
         } else if (instruction.startsWith("or")) {
             String[] tokens = getTokens(instruction);
             String rd = tokens[0];
             int rs = emulator.readReg(tokens[1]);
             int rt = emulator.readReg(tokens[2]);
             emulator.writeReg(rd, rs | rt);
-            emulator.incrementPC();
         } else if (instruction.startsWith("and")) {
             String[] tokens = getTokens(instruction);
             String rd = tokens[0];
             int rs = emulator.readReg(tokens[1]);
             int rt = emulator.readReg(tokens[2]);
             emulator.writeReg(rd, rs & rt);
-            emulator.incrementPC();
-        }
+        } 
+    }
+
+    public void setPC(int pc) {
+        this.emulator.setPC(pc);
     }
 
     /**
